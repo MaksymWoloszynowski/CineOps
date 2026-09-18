@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: deny-cross-namespace
-  namespace: movie-rater
+  namespace: cineops
 spec:
   podSelector: {}
   policyTypes:
@@ -11,4 +11,4 @@ spec:
     - from:
         - namespaceSelector:
             matchLabels:
-              name: movie-rater
+              name: cineops

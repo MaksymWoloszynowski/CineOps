@@ -1,8 +1,8 @@
-# 🎬 Movie Rater — Kubernetes & DevOps Project
+# 🎬 CineOPS — Kubernetes & DevOps Project
 
 ## Project Overview
 
-Movie Rater is a web application for managing and rating movies, built as a **containerized multi-service application deployed on Kubernetes**.
+CineOPS is a web application for managing and rating movies, built as a **containerized multi-service application deployed on Kubernetes**.
 
 The main goal of this project was  to demonstrate **practical DevOps and Kubernetes skills**  including container orchestration, service networking, persistent storage, secrets management, TLS termination, ingress configuration, network policies, and horizontal autoscaling.
 
@@ -11,7 +11,7 @@ The entire environment can be deployed locally using **Kind (Kubernetes in Docke
 ## Project structure
 
 ```
-Movie-rater/
+CineOPS/
 │
 ├── app/
 │   ├── backend/
@@ -42,7 +42,7 @@ The application is composed of several independent Kubernetes workloads:
 - **Keycloak** — identity and access management
 - **NGINX Ingress** — external traffic routing and HTTPS entry point
 
-All components are deployed inside a dedicated `movie-rater` Kubernetes namespace.
+All components are deployed inside a dedicated `cineops` Kubernetes namespace.
 
 ```mermaid
 graph TD
@@ -50,9 +50,9 @@ graph TD
 
     User -->|HTTPS| Ingress[NGINX Ingress]
 
-    Ingress -->|movie-rater.local| Frontend[Frontend]
+    Ingress -->|cineops.local| Frontend[Frontend]
     Ingress -->|API traffic| Backend[Backend]
-    Ingress -->|auth.movie-rater.local| Keycloak[Keycloak]
+    Ingress -->|auth.cineops.local| Keycloak[Keycloak]
 
     Frontend -->|API Requests| Backend
 

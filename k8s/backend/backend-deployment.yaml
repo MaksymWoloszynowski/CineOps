@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
-  namespace: movie-rater
+  namespace: cineops
   labels:
     component: backend
 spec:
@@ -30,7 +30,7 @@ spec:
             echo "Waiting for PostgreSQL..."
 
             until pg_isready \
-              -h postgres-service.movie-rater.svc.cluster.local \
+              -h postgres-service.cineops.svc.cluster.local \
               -p 5432; do
               echo "Postgres not ready yet..."
               sleep 2
@@ -39,7 +39,7 @@ spec:
             echo "Postgres is ready!"
       containers:
       - name: backend
-        image: maksymw/movie-rater-backend:v2
+        image: maksymw/cineops-backend:v2
         imagePullPolicy: Always
         securityContext:
           runAsNonRoot: true

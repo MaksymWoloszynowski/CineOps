@@ -50,6 +50,6 @@ kubectl apply -f k8s/ingress.yaml
 echo "Deployment finished!"
 
 echo "Cluster status:"
-kubectl get pods -n movie-rater
+kubectl get pods -n cineops
 
-kubectl config set-context --current --namespace=movie-rater
+kubectl config set-context --current --namespace=cineops

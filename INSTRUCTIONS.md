@@ -78,8 +78,8 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main
 Add the following entries to `/etc/hosts`:
 
 ```text
-127.0.0.1 movie-rater.local
-127.0.0.1 auth.movie-rater.local
+127.0.0.1 cineops.local
+127.0.0.1 auth.cineops.local
 ```
 
 ---
@@ -100,7 +100,7 @@ brew install mkcert
 
 ```bash
 mkcert --install
-mkcert movie-rater.local auth.movie-rater.local
+mkcert cineops.local auth.cineops.local
 ```
 
 ---
@@ -109,9 +109,9 @@ mkcert movie-rater.local auth.movie-rater.local
 
 ```bash
 kubectl create secret tls tls-secret \
-  -n movie-rater \
-  --cert=movie-rater.local+1.pem \
-  --key=movie-rater.local+1-key.pem
+  -n cineops \
+  --cert=cineops.local+1.pem \
+  --key=cineops.local+1-key.pem
 ```
 
 ---
@@ -124,8 +124,8 @@ kubectl create secret tls tls-secret \
 
 Once the application is running:
 
-- Application: https://movie-rater.local
-- Keycloak: https://auth.movie-rater.local
+- Application: https://cineops.local
+- Keycloak: https://auth.cineops.local
 
 ---
 
@@ -134,7 +134,7 @@ Once the application is running:
 ## Admin Panel Login
 
 ```text
-URL: https://auth.movie-rater.local
+URL: https://auth.cineops.local
 login: admin
 password: admin
 ```
@@ -146,7 +146,7 @@ password: admin
 1. Create a realm:
 
 ```text
-movie-rater
+cineops
 ```
 
 ---
@@ -167,13 +167,13 @@ frontend-client
 - Redirect URI:
 
 ```text
-https://movie-rater.local/*
+https://cineops.local/*
 ```
 
 - Web Origins:
 
 ```text
-https://movie-rater.local
+https://cineops.local
 ```
 
 ---

@@ -5,7 +5,7 @@ metadata:
 data:
   env.js: |
     window.__ENV__ = {
-      KEYCLOAK_URL: "https://auth.movie-rater.local",
-      KEYCLOAK_REALM: "movie-rater",
+      KEYCLOAK_URL: "https://auth.cineops.local",
+      KEYCLOAK_REALM: "cineops",
       KEYCLOAK_CLIENT: "frontend-client"
     };

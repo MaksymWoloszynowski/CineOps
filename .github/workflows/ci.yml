@@ -32,14 +32,14 @@ jobs:
         with:
           context: ./app/backend
           push: true
-          tags: ghcr.io/${{ env.REPO }}/movie-rater-backend:${{ github.sha }}
+          tags: ghcr.io/${{ env.REPO }}/cineops-backend:${{ github.sha }}
 
       - name: Build and push frontend
         uses: docker/build-push-action@v6
         with:
           context: ./app/frontend
           push: true
-          tags: ghcr.io/${{ env.REPO }}/movie-rater-frontend:${{ github.sha }}
+          tags: ghcr.io/${{ env.REPO }}/cineops-frontend:${{ github.sha }}
 
 
   deploy:
@@ -60,28 +60,28 @@ jobs:
 
       - name: Załaduj obraz do kind
         run: |
-          docker pull ghcr.io/${{ env.REPO }}/movie-rater-frontend:${{ github.sha }}
+          docker pull ghcr.io/${{ env.REPO }}/cineops-frontend:${{ github.sha }}
           kind load docker-image \
-            ghcr.io/${{ env.REPO }}/movie-rater-frontend:${{ github.sha }} \
+            ghcr.io/${{ env.REPO }}/cineops-frontend:${{ github.sha }} \
             --name test-cluster
 
       - name: Załaduj obraz do kind
         run: |
-          docker pull ghcr.io/${{ env.REPO }}/movie-rater-backend:${{ github.sha }}
+          docker pull ghcr.io/${{ env.REPO }}/cineops-backend:${{ github.sha }}
           kind load docker-image \
-            ghcr.io/${{ env.REPO }}/movie-rater-backend:${{ github.sha }} \
+            ghcr.io/${{ env.REPO }}/cineops-backend:${{ github.sha }} \
             --name test-cluster
 
       - name: Wdróż system
         run: |
           kubectl apply -f k8s/namespace.yaml
           ./run.sh
-          kubectl config set-context --current --namespace=movie-rater
+          kubectl config set-context --current --namespace=cineops
 
           kubectl set image deployment/backend-deployment \
-            backend=ghcr.io/${{ env.REPO }}/movie-rater-backend:${{ github.sha }}
+            backend=ghcr.io/${{ env.REPO }}/cineops-backend:${{ github.sha }}
           kubectl set image deployment/frontend-deployment \
-            frontend=ghcr.io/${{ env.REPO }}/movie-rater-frontend:${{ github.sha }}
+            frontend=ghcr.io/${{ env.REPO }}/cineops-frontend:${{ github.sha }}
 
       - name: Poczekaj na gotowość Podów
         run: |
@@ -100,13 +100,13 @@ jobs:
         if: failure()
         run: |
             echo "=== PODS ==="
-            kubectl get pods -n movie-rater -o wide
+            kubectl get pods -n cineops -o wide
 
             echo "=== DESCRIBE ==="
-            kubectl describe pods -n movie-rater
+            kubectl describe pods -n cineops
 
             echo "=== BACKEND LOGS ==="
-            kubectl logs -n movie-rater -l component=backend --tail=200 || true
+            kubectl logs -n cineops -l component=backend --tail=200 || true
 
             echo "=== EVENTS ==="
-            kubectl get events -n movie-rater --sort-by=.metadata.creationTimestamp
+            kubectl get events -n cineops --sort-by=.metadata.creationTimestamp

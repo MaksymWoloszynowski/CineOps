@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config
-  namespace: movie-rater
+  namespace: cineops
 data:
   init.sql: |-
     CREATE EXTENSION IF NOT EXISTS "pgcrypto";

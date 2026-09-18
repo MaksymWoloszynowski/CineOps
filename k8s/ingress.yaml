@@ -1,19 +1,19 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: movie-rater-ingress
-  namespace: movie-rater
+  name: cineops-ingress
+  namespace: cineops
 spec:
   ingressClassName: nginx
 
   tls:
   - hosts:
-    - movie-rater.local
-    - auth.movie-rater.local
+    - cineops.local
+    - auth.cineops.local
     secretName: tls-secret
 
   rules: 
-  - host: movie-rater.local
+  - host: cineops.local
     http:
       paths:
       - path: /
@@ -32,7 +32,7 @@ spec:
             port:
               number: 3000
 
-  - host: auth.movie-rater.local
+  - host: auth.cineops.local
     http:
       paths:
       - path: /

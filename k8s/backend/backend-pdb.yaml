@@ -2,7 +2,7 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: backend-pdb
-  namespace: movie-rater
+  namespace: cineops
 spec:
   minAvailable: 1
   selector:

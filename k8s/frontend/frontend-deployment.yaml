@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-deployment
-  namespace: movie-rater
+  namespace: cineops
   labels:
     component: frontend
 spec:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: maksymw/movie-rater-frontend:v2
+          image: maksymw/cineops-frontend:v2
           imagePullPolicy: Always
           securityContext:
             runAsNonRoot: true
