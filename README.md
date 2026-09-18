@@ -1,217 +1,81 @@
-## Autor:
-Maksym Wołoszynowski
+# 🎬 Movie Rater — Kubernetes & DevOps Project
 
-# Uruchomienie środowiska lokalnego
+## Project Overview
 
-## Wymagania
+Movie Rater is a web application for managing and rating movies, built as a **containerized multi-service application deployed on Kubernetes**.
 
-Zainstaluj wymagane narzędzia:
+The main goal of this project was  to demonstrate **practical DevOps and Kubernetes skills**  including container orchestration, service networking, persistent storage, secrets management, TLS termination, ingress configuration, network policies, and horizontal autoscaling.
 
-### Kind
+The entire environment can be deployed locally using **Kind (Kubernetes in Docker)**.
 
-#### Linux
+## Project structure
 
-```bash
-curl -Lo ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
-chmod +x ./kind
-sudo mv ./kind /usr/local/bin/kind
+```
+Movie-rater/
+│
+├── app/
+│   ├── backend/
+│   └── frontend/
+│
+├── k8s/
+│   ├── backend/
+│   ├── frontend/
+│   ├── keycloak/
+│   ├── postgres/
+│   ├── redis/
+│   ├── ingress.yaml
+│   ├── namespace.yaml
+│   └── network.yaml
+│
+├── docker-compose.yaml
+└── run.sh
 ```
 
-#### macOS
+## Architecture
 
-```bash
-brew install kind
+The application is composed of several independent Kubernetes workloads:
+
+- **Frontend** — web interface for interacting with the application
+- **Backend** — application API and business logic
+- **PostgreSQL** — persistent relational database
+- **Redis** — in-memory data store
+- **Keycloak** — identity and access management
+- **NGINX Ingress** — external traffic routing and HTTPS entry point
+
+All components are deployed inside a dedicated `movie-rater` Kubernetes namespace.
+
+```mermaid
+graph TD
+    User[User]
+
+    User -->|HTTPS| Ingress[NGINX Ingress]
+
+    Ingress -->|movie-rater.local| Frontend[Frontend]
+    Ingress -->|API traffic| Backend[Backend]
+    Ingress -->|auth.movie-rater.local| Keycloak[Keycloak]
+
+    Frontend -->|API Requests| Backend
+
+    Backend --> Backend_DB[(Backend DB)]
+    Backend --> Redis[(Redis)]
+
+    Keycloak --> Keycloak_DB[(Keycloak DB)]
 ```
 
-### Kubectl
+## Technologies
 
-#### Linux
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+[![Kind](https://img.shields.io/badge/Kind-000000?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kind.sigs.k8s.io/)
+[![NGINX](https://img.shields.io/badge/NGINX-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://nginx.org/)
+[![Keycloak](https://img.shields.io/badge/Keycloak-4D4D4D?style=for-the-badge&logo=keycloak&logoColor=white)](https://www.keycloak.org/)
+[![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
 
-```bash
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+## Quick start
 
-chmod +x kubectl
-sudo mv kubectl /usr/local/bin/
-```
-
-#### macOS
-
-```bash
-brew install kubectl
-```
-
----
-
-## 1. Utworzenie klastra Kind
-
-```bash
-cat <<EOF | kind create cluster --config=-
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-nodes:
- - role: control-plane
-   kubeadmConfigPatches:
-   - |
-     kind: InitConfiguration
-     nodeRegistration:
-       kubeletExtraArgs:
-         node-labels: "ingress-ready=true"
-   extraPortMappings:
-   - containerPort: 80
-     hostPort: 80
-     protocol: TCP
-   - containerPort: 443
-     hostPort: 443
-     protocol: TCP
-EOF
-```
-
----
-
-## 2. Instalacja Ingress NGINX
-
-```bash
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-```
-
----
-
-## 3. Konfiguracja lokalnych domen
-
-Dodaj wpisy do `/etc/hosts`:
-
-```text
-127.0.0.1 movie-rater.local
-127.0.0.1 auth.movie-rater.local
-```
-
----
-
-## 4. Wygenerowanie certyfikatów TLS
-
-### Linux
-
-```bash
-sudo apt install mkcert
-```
-
-### macOS
-
-```bash
-brew install mkcert
-```
-
-```bash
-mkcert --install
-mkcert movie-rater.local auth.movie-rater.local
-```
-
----
-
-## 5. Utworzenie sekretu TLS
-
-```bash
-kubectl create secret tls tls-secret \
-  -n movie-rater \
-  --cert=movie-rater.local+1.pem \
-  --key=movie-rater.local+1-key.pem
-```
-
----
-
-## 6. Uruchomienie aplikacji
-
-```bash
-./run
-```
-
-Po uruchomieniu:
-
-- aplikacja: https://movie-rater.local  
-- Keycloak: https://auth.movie-rater.local  
-
----
-
-# Konfiguracja Keycloak
-
-## Logowanie do panelu
-
-```text
-URL: https://auth.movie-rater.local
-login: admin
-password: admin
-```
-
----
-
-## Konfiguracja realm
-
-1. Utwórz realm:
-```text
-movie-rater
-```
-
----
-
-## Konfiguracja klienta
-
-1. Utwórz klienta:
-```text
-frontend-client
-```
-
-2. Ustaw:
-- OpenID Connect
-- Client authentication: OFF
-- PKCE: S256 REQUIRED
-- Redirect URI:
-```text
-https://movie-rater.local/*
-```
-- Web Origins:
-```text
-https://movie-rater.local
-```
-
----
-
-## Rejestracja użytkowników
-
-W realm:
-```text
-Realm Settings → Login → User registration = ON
-```
-
----
-
-## Role
-
-1. Utwórz rolę:
-```text
-admin
-```
-
-2. Przypisz do użytkownika w zakładce:
-```text
-Users → Role mapping
-```
-
----
-
-# Backend secrets
-
-W pliku:
-
-```text
-backend-secrets.yaml
-```
-
-należy ustawić klucz publiczny (RS256) w formacie base64:
-
-```bash
-echo -n "<TWÓJ_PUBLIC_KEY_RS256>" | base64
-```
-
-Wynik wklej do sekcji secret jako wartość pola.
-
----
+To start the application please refer to the [instructions](./INSTRUCTIONS.md).
